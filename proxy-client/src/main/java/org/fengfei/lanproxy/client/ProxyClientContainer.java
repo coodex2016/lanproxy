@@ -139,14 +139,23 @@ public class ProxyClientContainer implements Container, ChannelStatusListener {
         connectProxyServer();
     }
 
+    private long getSleepTimeMill(){
+        try{
+            return Long.parseLong(config.getStringValue("reconnect.interval","1000"));
+        }catch (Throwable th){
+            return 1000;
+        }
+    }
+
     private void reconnectWait() {
         try {
-            if (sleepTimeMill > 60000) {
-                sleepTimeMill = 1000;
-            }
+            sleepTimeMill = getSleepTimeMill();
+//            if (sleepTimeMill > 60000) {
+//                sleepTimeMill = 1000;
+//            }
 
             synchronized (this) {
-                sleepTimeMill = sleepTimeMill * 2;
+//                sleepTimeMill = sleepTimeMill * 2;
                 wait(sleepTimeMill);
             }
         } catch (InterruptedException e) {
