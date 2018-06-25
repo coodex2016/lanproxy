@@ -53,7 +53,7 @@ public class UserChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
         InetSocketAddress sa = (InetSocketAddress) userChannel.localAddress();
         Channel cmdChannel = ProxyChannelManager.getCmdChannel(sa.getPort());
 
-        if (cmdChannel == null || !cmdChannel.isOpen()) {
+        if (cmdChannel == null || !cmdChannel.isActive()) {
 
             // 该端口还没有代理客户端
             ctx.channel().close();
