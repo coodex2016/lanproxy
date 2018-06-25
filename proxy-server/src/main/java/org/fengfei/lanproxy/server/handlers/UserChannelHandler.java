@@ -3,16 +3,13 @@ package org.fengfei.lanproxy.server.handlers;
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicLong;
 
+import io.netty.channel.*;
 import org.fengfei.lanproxy.protocol.Constants;
 import org.fengfei.lanproxy.protocol.ProxyMessage;
 import org.fengfei.lanproxy.server.ProxyChannelManager;
 import org.fengfei.lanproxy.server.config.ProxyConfig;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.SimpleChannelInboundHandler;
 
 /**
  * 处理服务端 channel.
@@ -56,7 +53,7 @@ public class UserChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
         InetSocketAddress sa = (InetSocketAddress) userChannel.localAddress();
         Channel cmdChannel = ProxyChannelManager.getCmdChannel(sa.getPort());
 
-        if (cmdChannel == null) {
+        if (cmdChannel == null || !cmdChannel.isOpen()) {
 
             // 该端口还没有代理客户端
             ctx.channel().close();
