@@ -5,6 +5,7 @@ import java.util.Arrays;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 
+import io.netty.channel.*;
 import org.fengfei.lanproxy.client.handlers.ClientChannelHandler;
 import org.fengfei.lanproxy.client.handlers.RealServerChannelHandler;
 import org.fengfei.lanproxy.client.listener.ChannelStatusListener;
@@ -19,11 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -70,6 +66,7 @@ public class ProxyClientContainer implements Container, ChannelStatusListener {
 
         bootstrap = new Bootstrap();
         bootstrap.group(workerGroup);
+
         bootstrap.channel(NioSocketChannel.class);
         bootstrap.handler(new ChannelInitializer<SocketChannel>() {
 
@@ -79,9 +76,9 @@ public class ProxyClientContainer implements Container, ChannelStatusListener {
                     if (sslContext == null) {
                         sslContext = SslContextCreator.createSSLContext();
                     }
-
                     ch.pipeline().addLast(createSslHandler(sslContext));
                 }
+                ch.config().setOption(ChannelOption.SO_KEEPALIVE, true);
                 ch.pipeline().addLast(new ProxyMessageDecoder(MAX_FRAME_LENGTH, LENGTH_FIELD_OFFSET, LENGTH_FIELD_LENGTH, LENGTH_ADJUSTMENT, INITIAL_BYTES_TO_STRIP));
                 ch.pipeline().addLast(new ProxyMessageEncoder());
                 ch.pipeline().addLast(new IdleCheckHandler(IdleCheckHandler.READ_IDLE_TIME, IdleCheckHandler.WRITE_IDLE_TIME - 10, 0));

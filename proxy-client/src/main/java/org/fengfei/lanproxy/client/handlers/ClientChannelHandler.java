@@ -112,6 +112,7 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
                             channel.writeAndFlush(proxyMessage);
 
                             realServerChannel.config().setOption(ChannelOption.AUTO_READ, true);
+                            realServerChannel.config().setOption(ChannelOption.SO_KEEPALIVE, true);
                             ClientChannelMannager.addRealServerChannel(userId, realServerChannel);
                             ClientChannelMannager.setRealServerChannelUserId(realServerChannel, userId);
                         }
